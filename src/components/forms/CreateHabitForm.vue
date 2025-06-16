@@ -122,16 +122,35 @@
 
 <script setup>
 import { ref, onMounted, reactive } from 'vue'
-import {useStoreHabit} from "../../store/habits.js"
-import {useStoreCategory} from "../../store/category.js"
+import { onBeforeRouteLeave } from 'vue-router'
+import { useStoreHabit } from "../../store/habits.js"
+import { useStoreCategory } from "../../store/category.js"
 import { useRouter } from 'vue-router'
 import { toast } from 'vue3-toastify'
+
 const router = useRouter()
 const storeCategory = useStoreCategory()
 const storeHabit = useStoreHabit()
+
 const step = ref(1)
 const days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
 let categories = ref([])
+
+const resetHabit = () => {
+  Object.assign(habit, {
+    subItems: [],
+    name: '',
+    description: '',
+    type: 'diaria',
+    frequency: 1,
+    days_of_week: [],
+    start_date: '',
+    end_date: '',
+    time: '',
+    category_id: null,
+    target: null,
+  })
+}
 
 const habit = reactive({
   subItems: [],
@@ -148,50 +167,52 @@ const habit = reactive({
 })
 
 const getCategory = async () => {
-const res = await storeCategory.listCategory();
-if (res.status < 299) {
-  res.data.forEach(element => {
-  categories.value.push(element)  
-  }); 
-}
+  const res = await storeCategory.listCategory()
+  if (res.status < 299) {
+    categories.value = res.data
+  }
 }
 
 const nextStep = () => step.value++
 const prevStep = () => step.value--
 
 const submitForm = async () => {
-  console.log(3);
-  
-  console.log(habit.subItems);
-  
   try {
     const payload = {
       ...habit,
-       days_of_week: habit.days_of_week,
-    }     
+      days_of_week: habit.days_of_week,
+    }
+
     if (storeHabit.habitToEdit) {
-     await storeHabit.updateHabit(habit.id, payload)
-       toast.success('Has editado un habito exitosamente')
+      await storeHabit.updateHabit(habit.id, payload)
+      toast.success('Has editado un hábito exitosamente')
+    } else {
+      await storeHabit.newHabit(payload)
+      toast.success('Has creado un hábito exitosamente')
+      resetHabit() 
+      step.value = 1 
     }
-    else{
-     await storeHabit.newHabit(payload)
-     toast.success('Has creado un habito exitosamente')
-      setTimeout(() => {
-        router.push('/habits')
-      }, 2000)
-    }
+
     storeHabit.clearHabitToEdit()
     router.push('/habits')
+
   } catch (err) {
     console.error(err)
-    toast.error('Hubo un error al crear el habito')
+    toast.error('Hubo un error al crear el hábito')
   }
 }
 
 onMounted(() => {
   getCategory()
+  step.value = 1   
   if (storeHabit.habitToEdit) {
     Object.assign(habit, storeHabit.habitToEdit)
+  } else {
+    resetHabit()
   }
+})
+
+onBeforeRouteLeave(() => {
+  storeHabit.habitToEdit = null
 })
 </script>

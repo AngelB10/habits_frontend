@@ -25,7 +25,7 @@ const handleLogin = async (data) => {
     if (userLogin.status && userLogin.status < 299) {
       toast.success('Has iniciado sesión correctamente')
       setTimeout(() => {
-        router.push('/dashboard')
+        router.push('/habits')
       }, 2000)
     } 
      else {

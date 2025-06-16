@@ -61,8 +61,8 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
 import {useStoreHabit} from "../../store/habits.js"
+const emit = defineEmits(["refreshHabits"]);
 const storehabits = useStoreHabit()
 const props = defineProps({
   habit: Object,
@@ -72,20 +72,16 @@ const props = defineProps({
 
 
 const toggleCompleteSubitem = async (item) => {
-  console.log(item.id);
-  
   const res = await storehabits.toggleSubitem(item.id);
-  console.log(res);
-  
   if (res?.subitem) {
-    item.done = res.subitem.done; // actualiza en el frontend
+    item.done = res.subitem.done;
+     emit('refreshHabits')
   }
-
 };
 
+const close = () => {
+  emit('refreshHabits')
+  props.close()
+}
 
 </script>
-
-<style scoped>
-/* Puedes agregar animaciones o estilos personalizados aquí si deseas */
-</style>

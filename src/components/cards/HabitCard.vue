@@ -16,6 +16,9 @@
       <div class="text-gray-400 mt-4">
         <p>{{ description }}</p>
       </div>  
+        <div class="text-gray-400 mt-2">
+        <p>{{ props.data.progress }}% completado</p>
+      </div>  
     </div>
     
     <div v-if="showMenu" class="absolute right-1 bottom-14 w-36 bg-gray-800 text-white rounded-md shadow-xl z-20">
@@ -48,7 +51,7 @@
       <div class="bg-[#030013] w-full h-10 p-2 m-auto text-white text-center cursor-pointer hover:bg-[#0f101f] transition" @click="openHabitDetails()">
       <p class="text-sm font-semibold">ver más</p>
     </div>
-     <HabitModal :habit="selectedHabit" :visible="showModal" :close="closeModal" />
+     <HabitModal :habit="selectedHabit" :visible="showModal" :close="closeModal"  @refreshHabits="$emit('refreshHabits')"/>
      <div class="h-2 w-full bg-gradient-to-l via-green-500 group-hover:blur-xl blur-2xl m-auto rounded transition-all absolute bottom-0"></div>
     <div class="h-0.5 group-hover:w-full bg-gradient-to-l via-green-950 group-hover:via-green-500 w-[70%] m-auto transition-all"></div>
 
@@ -60,10 +63,10 @@ import {ref} from 'vue'
 import { Trash2, Pencil, Ellipsis, TrendingUp } from 'lucide-vue-next';
 import HabitModal from '../../components/modals/HabitModal.vue'
 import {useStoreHabit} from "../../store/habits.js"
-import { object } from 'yup';
+import { toast } from 'vue3-toastify'
+import { boolean } from 'yup';
 const storehabits = useStoreHabit()
-let habits = ref()
-const emit = defineEmits(["delete, edit"]);
+const emit = defineEmits(["delete, edit, refreshHabits"]);
 const showMenu = ref(false)
 const props = defineProps({
   id: [String, Number],
@@ -72,7 +75,7 @@ const props = defineProps({
   category: String,
   icon: String,
   progress: Number, 
-  completed: Number,
+  completed: Boolean,
   description: String,
   iconColor: {
     type: String,
@@ -89,17 +92,29 @@ const functionEdit = (id) => {
 }
 
 const toggleMenu = () => {
-  console.log(props.id);
-  
   showMenu.value = !showMenu.value
 }
 
 const isCompleted = ref(!!props.completed)
 
 const toggleComplete = async () => {
-  isCompleted.value = !isCompleted.value;
- if (isCompleted.value) {
+  if (!isCompleted.value) {
+    console.log(props.data?.sub_items?.length );
+    if (props.data?.sub_items?.length > 0) {
+      const allSubitemsDone = props.data.sub_items.every(item => item.done);
+      if (!allSubitemsDone) {
+        toast.error('No puedes marcar este hábito como completado hasta que todas las subtareas estén completadas.')
+        return;
+      }
+    }
+    isCompleted.value = true;
     await storehabits.markHabitAsCompleted(props.id);
+     emit('refreshHabits')
+
+  } else {
+    isCompleted.value = false;
+    await storehabits.markHabitAsUncompleted(props.id);
+     emit('refreshHabits') 
   }
 };
 

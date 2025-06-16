@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import {requestAxios} from "../services/api.js"
+import { toast } from 'vue3-toastify'
 
 export const useStoreCategory = defineStore('categoryStore', () => {
     async function newCategory(data) {

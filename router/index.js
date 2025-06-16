@@ -4,6 +4,7 @@ import Register from '@/pages/Register.vue'
 import Dashboard from '@/pages/Dashboard.vue'
 import Habits from '@/pages/Habits.vue'
 import HabitsForm from '@/components/forms/CreateHabitForm.vue'
+import Category from '@/pages/Category.vue'
 
 
 export const routes = [
@@ -40,11 +41,16 @@ export const routes = [
     name: "habits",
     component: Habits,   
   },
+  {
+    path: "/app",
+    name: "App",
+    component: App,   
+  },
     {
-      path: "/app",
-      name: "App",
-      component: App,   
-    },
+  path: "/category",
+  name: "category",
+  component: Category,   
+},
    
 ]
 

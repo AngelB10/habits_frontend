@@ -14,7 +14,7 @@
 
 <script setup>
 defineProps({
-  nameButton: Text,
+  nameButton: String,
 })
 
 

@@ -1,7 +1,7 @@
 <template>
     <div>
      <div class="flex justify-between items-center py-8">
-     <h2> Habitos </h2>
+     <h2 class="font-bold "> Habitos </h2>
      <div>
       <router-link to="/habitsForm">
         <Button nameButton="CREA UN HABITO" />
@@ -11,7 +11,7 @@
      <div v-show="res == null" class="text-center justify-center content-center py-52 ">
       <h2>No hay habitos registrados</h2>
      </div>
-     <div class="flex gap-4">
+     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-y-8 ">
       <HabitCard v-for="habit in habits"
         :key="habit.id"
         :id="habit.id"
@@ -24,6 +24,7 @@
         @delete="deleteHabits"
         @edit="goInfo"
         :data="habit"
+         @refreshHabits="getHabits"
          />
     </div>
     
@@ -45,8 +46,6 @@ let res = ref()
 let habits = ref()
 
 
-
-
 const getHabits = async () => {
 res.value = await storehabits.listHabit();
 if (res.value.status < 299) {
@@ -55,9 +54,7 @@ if (res.value.status < 299) {
 }
 
 const goInfo = async (id) => {
-  const habit = habits.value.find(h => h.id === id)
-  console.log(habit);
-  
+  const habit = habits.value.find(h => h.id === id)  
   if (habit) {
     storehabits.setHabitToEdit(habit) 
     router.push('/habitsForm')       

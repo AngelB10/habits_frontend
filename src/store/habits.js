@@ -55,6 +55,15 @@ export const useStoreHabit = defineStore('habitStore', () => {
   }
 }
 
+async function markHabitAsUncompleted(id) {
+  try {
+    const response = await requestAxios.post(`/habits/${id}/uncomplete`);
+    return response.data;
+  } catch (error) {
+    console.error("Error al desmarcar hábito:", error);
+  }
+}
+
   async function toggleSubitem(id) {
   try {
     const response = await requestAxios.put(`/subitems/${id}/toggle`);
@@ -75,7 +84,7 @@ export const useStoreHabit = defineStore('habitStore', () => {
   }
 
 
-    return { habitToEdit, newHabit, listHabit, deleteHabit, updateHabit,setHabitToEdit,clearHabitToEdit, markHabitAsCompleted, toggleSubitem}
+    return { habitToEdit, newHabit, listHabit, deleteHabit, updateHabit,setHabitToEdit,clearHabitToEdit, markHabitAsCompleted, toggleSubitem, markHabitAsUncompleted}
   },
   {
     persist: true,
